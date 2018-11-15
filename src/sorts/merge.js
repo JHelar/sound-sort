@@ -1,59 +1,75 @@
-const yoo = function*(str, current, stop) {
-  yield str;
+const mergeSort = bars => {
+    
+    const yieldQueue = [];
+    let barsCopy = [...bars];
 
-  if (current < stop) {
-    current = current +1;
-    for (const tmp of yoo(str + "!lol!", current, stop)) {
-      yield tmp;
+    const merge = (left, right, start) => {
+        const result = [];
+
+        let leftLength = left.length;
+        let rightLength = right.length;
+
+        while (leftLength > 0 && rightLength > 0) {
+            if (left[0].value <= right[0].value) {
+                result.push(left.shift());
+                leftLength--;
+            } else {
+                result.push(right.shift());
+                rightLength--;
+            }
+        }
+        
+        const returnArray = [...result, ...left, ...right];
+        const lb = barsCopy.slice(0, start);
+        const rb = barsCopy.slice(start + returnArray.length, barsCopy.length);
+        const resultYield = [...lb, ...returnArray, ...rb];
+
+        barsCopy = resultYield;
+
+        yieldQueue.push({
+            bars: resultYield,
+            sleep: true
+        })
+
+        return returnArray;
+    };
+
+    const sort = (list, start) => {
+        if (list.length <= 1) {
+            return [...list];
+        }
+
+        let left = [];
+        let right = [];
+
+        let leftStart = start;
+        let rightStart = false;
+
+        list.forEach((bar, i) => {
+            if (i < (list.length / 2)) {
+                left.push(bar);
+            } else {
+                if(!rightStart) rightStart = start + i;
+                right.push(bar);
+            }
+        });
+
+        left = sort([...left], leftStart);
+        right = sort([...right], rightStart);
+
+        return merge(left, right, start);
+    };
+
+    const next = () => {
+        sort([...bars], 0)
+        return (function*() {
+            for(let i = 0; i < yieldQueue.length; i++) {
+                yield yieldQueue[i];
+            }
+        })();
     }
-  }
 
-  return;
+    return next();
 };
 
-for(const test of yoo('start', 0, 1)){
-    console.log(test)
-}
-
-const mergeSort = bars => {
-  const merge = (left, right) => {
-    const result = [];
-
-    while(left.length > 0 && right.length > 0){
-      if(left[0] <= right[0]){
-        result.push(left.splice(0, 1))
-      } else {
-        result.push(right.splice(0, 1))
-      }
-    }
-
-    return [...result, ...left, ...right];
-  }
-
-  const sort = (list, start, end) => {
-
-    if(list <= 1){
-      return;
-    }
-
-    let left = [];
-    let right = [];
-
-    list.forEach((bar, i) => {
-      if(i < (list.length / 2 )){
-        left.push(bar);
-      } else {
-        right.push(bar);
-      }
-    })
-
-    left = sort(left);
-    right = sort(right);
-
-    yield merge(left, right);
-  }
-
-  const next = function*(){
-  
-  }
-}
+export default mergeSort
