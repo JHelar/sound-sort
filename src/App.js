@@ -2,9 +2,12 @@ import React, { Component } from 'react';
 import Bar from './components/Bar';
 import './App.css';
 
-import { BAR_AMOUNT, BAR_WIDTH, BAR_MAX_HEIGHT } from './app-settings';
+import { BAR_AMOUNT, BAR_WIDTH, BAR_MAX_HEIGHT, SPEED } from './app-settings';
 import { Bubble, Merge } from './sorts';
 import { sleep } from './utils';
+
+import Tone from 'tone';
+import scribble from 'scribbletune';
 
 const generateBars = () =>
     Array.from(Array(BAR_AMOUNT), (v, index) => ({
@@ -30,14 +33,16 @@ class App extends Component {
         this.isSorting = false;
     }
     async autoSort() {
+
         for(const b of this.state.sort) {
             this.setState({
               bars: b.bars
             })
             if(b.sleep) {
-              await sleep(25)
+              await sleep(SPEED)
             }
         }
+
         this.setState({
             done: true
         })
@@ -94,7 +99,7 @@ class App extends Component {
                 )}
 
                 {this.state.bars.map((bar, index) => (
-                    <Bar key={bar.id} {...bar} x={BAR_WIDTH * index} />
+                    <Bar key={bar.id} barNumber={index + 1} {...bar} x={BAR_WIDTH * index} />
                 ))}
             </div>
         );

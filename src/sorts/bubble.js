@@ -14,20 +14,30 @@ const bubble = bars => {
         const another = bars[index + 1];
         
 
-        one.selected = true;
-        another.selected = true;
-        yield { bars, sleep: true };
+        // one.selected = true;
+        // another.selected = true;
+        // yield { bars, sleep: true };
         
         if (one.value > another.value) {
+          one.selected = true;
           swap(index, index + 1);
           yield { bars, sleep: true };
+
+          one.selected = false;
         }
   
-        one.selected = false;
-        another.selected = false;
+        // one.selected = false;
+        // another.selected = false;
       }
   
       stopper--;
+    }
+
+    for(let i = 0; i < bars.length; i++) {
+      bars[i].selected = true;
+
+      yield { bars, sleep: true };
+      bars[i].selected = false;
     }
   }
 

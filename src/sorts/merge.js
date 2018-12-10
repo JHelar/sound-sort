@@ -9,29 +9,54 @@ const mergeSort = bars => {
         let leftLength = left.length;
         let rightLength = right.length;
 
+        const makeBarCopy = () => {
+            const returnArray = [...result, ...left, ...right];
+            const lb = barsCopy.slice(0, start);
+            const rb = barsCopy.slice(start + returnArray.length, barsCopy.length);
+            const resultYield = [...lb, ...returnArray, ...rb].map(tmp => Object.assign({}, tmp));
+
+            return {
+                resultYield,
+                returnArray
+            };
+        }
+
         while (leftLength > 0 && rightLength > 0) {
             if (left[0].value <= right[0].value) {
-                result.push(left.shift());
+                let leftShift = Object.assign({}, left.shift());
+                leftShift.selected = true;
+                result.push(leftShift);
                 leftLength--;
+                yieldQueue.push({
+                    bars: makeBarCopy().resultYield,
+                    sleep: true
+                })
+                leftShift.selected = false;
             } else {
-                result.push(right.shift());
+                let rightShift = Object.assign({}, right.shift());
+                rightShift.selected = true;
+                result.push(rightShift);
                 rightLength--;
+                yieldQueue.push({
+                    bars: makeBarCopy().resultYield,
+                    sleep: true
+                })
+
+                rightShift.selected = false;
             }
+
         }
         
-        const returnArray = [...result, ...left, ...right];
-        const lb = barsCopy.slice(0, start);
-        const rb = barsCopy.slice(start + returnArray.length, barsCopy.length);
-        const resultYield = [...lb, ...returnArray, ...rb];
-
-        barsCopy = resultYield;
+        
+        const barCopy = makeBarCopy();
+        barsCopy = barCopy.resultYield;
 
         yieldQueue.push({
-            bars: resultYield,
+            bars: barCopy.resultYield,
             sleep: true
         })
 
-        return returnArray;
+        return barCopy.returnArray;
     };
 
     const sort = (list, start) => {
@@ -62,9 +87,18 @@ const mergeSort = bars => {
 
     const next = () => {
         sort([...bars], 0)
+        for(let i = 0; i < bars.length; i++) {
+            bars[i].selected = false;
+        }
         return (function*() {
             for(let i = 0; i < yieldQueue.length; i++) {
                 yield yieldQueue[i];
+            }
+            for(let i = 0; i < barsCopy.length; i++) {
+                barsCopy[i].selected = true;
+            
+                yield { bars: barsCopy, sleep: true };
+                barsCopy[i].selected = false;
             }
         })();
     }

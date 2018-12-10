@@ -1,6 +1,7 @@
 import React from 'react';
+import Tone from 'tone';
 import scribble from 'scribbletune';
-import { BAR_WIDTH } from '../app-settings';
+import { BAR_WIDTH, BAR_AMOUNT, SPEED, BAR_MAX_HEIGHT } from '../app-settings';
 
 const getBarStyle = ({ height, x, color, selected }) =>({
     height: `${height}px`,
@@ -17,18 +18,14 @@ const getBarStyle = ({ height, x, color, selected }) =>({
 export default class Bar extends React.Component {
     constructor(props) {
         super(props);
+        const synth = new Tone.Synth().toMaster(); 
+        this.state = {
+            synth
+        }
     }
     render(){
         if(this.props.selected) { // Play a sound
-            console.log({
-                selected: this.props.selected   
-            })
-            scribble.clip({
-                synth: 'PolySynth',
-                pattern: 'x',
-                nodes: 'CM',
-            }).start();
-            Tone.Transport.start();
+            this.state.synth.triggerAttackRelease((this.props.height / BAR_MAX_HEIGHT) * 4000, SPEED / 1000)
         }
         return <div style={getBarStyle(this.props)}></div>
     }
