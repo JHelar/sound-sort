@@ -1,5 +1,5 @@
 import React from 'react';
-
+import scribble from 'scribbletune';
 import { BAR_WIDTH } from '../app-settings';
 
 const getBarStyle = ({ height, x, color, selected }) =>({
@@ -14,6 +14,22 @@ const getBarStyle = ({ height, x, color, selected }) =>({
     borderWidth: '1px 0 0 1px'
 })
 
-export default (props) => (
-    <div style={getBarStyle(props)}></div>
-)
+export default class Bar extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render(){
+        if(this.props.selected) { // Play a sound
+            console.log({
+                selected: this.props.selected   
+            })
+            scribble.clip({
+                synth: 'PolySynth',
+                pattern: 'x',
+                nodes: 'CM',
+            }).start();
+            Tone.Transport.start();
+        }
+        return <div style={getBarStyle(this.props)}></div>
+    }
+}
